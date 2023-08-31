@@ -35,7 +35,6 @@ const reviewSchema = new mongoose.Schema({
 
 const Review = mongoose.model('Review', reviewSchema)
 
-
 //make metadata collection a "view"
 const metadataSchema = new mongoose.Schema({
   product_id: Number,
@@ -55,13 +54,7 @@ const metadataSchema = new mongoose.Schema({
 }, { autoCreate: false, autoIndex: false}); //disable for views because we want to create on demand
 
 const Metadata = mongoose.model('Metadata', metadataSchema);
+// I would attempt to create a "view"
 // await Metadata.createCollection(
 //   viewOn: 'reviews',
-//   pipeline: [
-//     {
-//       $set: {
-//         rating_1: { }... //create agreggation logic
-//       }
-//     }
-//   ]
-// );
+//   pipeline: [{ $set: {rating_1: { }... //create agreggation logic...}, ...} ]);
