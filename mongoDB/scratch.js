@@ -4,7 +4,7 @@ main().catch(err => console.log(err));
 
 async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/ratings_reviews');
-}
+};
 
 //subdocument
 const photoSchema = new mongoose.Schema({
@@ -24,8 +24,8 @@ const reviewSchema = new mongoose.Schema({
   reviewer_name: String,
   helpfulness: Number,
   photos: [photoSchema],
-  fit: Number, //use descriptive names instead of characteristic IDs moving forward
-  length: Number,
+  fit: Number, //switched to descriptive names instead of characteristic IDs moving forward
+  length: Number, //null ok, characteristics are not required, not all products have every characteristic
   comfort: Number,
   quality: Number,
   size: Number,
@@ -41,9 +41,7 @@ const Product = new mongoose.Schema({
 const Review = mongoose.model('Review', reviewSchema);
 const Product = mongoose.model('Product', productSchema);
 
-
-//Queries I'll need:
-/*
+/* Queries I'll need:
 Reviews: aggregate -> sum of all reviews by product id, grouped by star rating. return 5 totals
 Recommended: aggregate -> sum of all reviews by product id, grouped by reccommended true/false. return 2 totals
 Characteristics: aggregate -> avg of all reviews by product id, filter by characteristics in Product model, return totals for all characteristics
