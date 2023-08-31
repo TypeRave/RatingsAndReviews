@@ -15,12 +15,12 @@ CREATE TABLE reviews (
   helpfulness integer DEFAULT 0,
   photos boolean DEFAULT FALSE,
   --^added boolean, if photos submitted, switch to true. this might save on checking the review_photos table if no photos exist, but it may also add extra bulk where none is needed. Will experiment!
-  fit integer NOT NULL,
-  length integer NOT NULL,
-  comfort integer NOT NULL,
-  quality integer NOT NULL,
-  size integer NOT NULL,
-  width integer NOT NULL,
+  fit integer NULL,
+  length integer NULL,
+  comfort integer NULL,
+  quality integer NULL,
+  size integer NULL,
+  width integer NULL,
   reported boolean DEFAULT FALSE,
 );
 

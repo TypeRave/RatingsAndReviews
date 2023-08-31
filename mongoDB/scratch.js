@@ -9,7 +9,7 @@ async function main() {
 //subdocument
 const photoSchema = new mongoose.Schema({
   id: Number;
-  url: String;
+  url: String,
 });
 //main document
 const reviewSchema = new mongoose.Schema({
@@ -33,28 +33,18 @@ const reviewSchema = new mongoose.Schema({
   reported: Boolean,
 });
 
-const Review = mongoose.model('Review', reviewSchema)
+const Product = new mongoose.Schema({
+  id: Number,
+  characteristics: [String],
+});
 
-//make metadata collection a "view"
-const metadataSchema = new mongoose.Schema({
-  product_id: Number,
-  rating_1: Number,
-  rating_2: Number,
-  rating_3: Number,
-  rating_4: Number,
-  rating_5: Number,
-  recommended_true: Number,
-  recommended_false: Number,
-  fit_avg: Number,
-  length_avg: Number,
-  width_avg: Number,
-  comfort_avg: Number,
-  quality_avg: Number,
-  size_avg: Number,
-}, { autoCreate: false, autoIndex: false}); //disable for views because we want to create on demand
+const Review = mongoose.model('Review', reviewSchema);
+const Product = mongoose.model('Product', productSchema);
 
-const Metadata = mongoose.model('Metadata', metadataSchema);
-// I would attempt to create a "view"
-// await Metadata.createCollection(
-//   viewOn: 'reviews',
-//   pipeline: [{ $set: {rating_1: { }... //create agreggation logic...}, ...} ]);
+
+//Queries I'll need:
+/*
+Reviews: aggregate -> sum of all reviews by product id, grouped by star rating. return 5 totals
+Recommended: aggregate -> sum of all reviews by product id, grouped by reccommended true/false. return 2 totals
+Characteristics: aggregate -> avg of all reviews by product id, filter by characteristics in Product model, return totals for all characteristics
+*/
