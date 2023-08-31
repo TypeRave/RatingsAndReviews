@@ -31,28 +31,48 @@ CREATE TABLE review_photos (
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
 
--- I am going to map characteristics to a small table of keys 1-6 for each characteristic
+
 CREATE TABLE characteristics (
   id serial PRIMARY KEY,
-  -- updated "name" to "characteristic"
-  characteristic text NOT NULL UNIQUE
-);
--- Then the text values in the "names" column in characteristics.csv can be reduced to a single int 1-6
-CREATE TABLE products_characteristics (
-  id serial PRIMARY KEY,
   product_id integer NOT NULL,
-  characteristic_id integer NOT NULL,
-  FOREIGN KEY (characteristic_id) REFERENCES characteristics (id)
+  characteristic varchar(7) NOT NULL,
+  -- updated "name" to "characteristic"
 );
--- characteristic IDs will need to be converted to their new char_ID (current ID -> text -> new ID)
+
 CREATE TABLE characteristics_reviews (
   id serial PRIMARY KEY,
   review_id integer NOT NULL,
   characteristic_id integer NOT NULL,
-  "value" integer NOT NULL,
+  value integer NOT NULL,
   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id),
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
+
+
+
+----LATER OPTIMIZATION----
+-- I am going to map characteristics to a small table of keys 1-6 for each characteristic
+-- CREATE TABLE characteristics (
+--   id serial PRIMARY KEY,
+--   -- updated "name" to "characteristic"
+--   characteristic text NOT NULL UNIQUE
+-- );
+-- -- Then the text values in the "names" column in characteristics.csv can be reduced to a single int 1-6
+-- CREATE TABLE products_characteristics (
+--   id serial PRIMARY KEY,
+--   product_id integer NOT NULL,
+--   characteristic_id integer NOT NULL,
+--   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id)
+-- );
+-- -- characteristic IDs will need to be converted to their new char_ID (current ID -> text -> new ID)
+-- CREATE TABLE characteristics_reviews (
+--   id serial PRIMARY KEY,
+--   review_id integer NOT NULL,
+--   characteristic_id integer NOT NULL,
+--   "value" integer NOT NULL,
+--   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id),
+--   FOREIGN KEY (review_id) REFERENCES reviews (id)
+-- );
 
 ------------------------------------
 ------------QUERIES-----------------

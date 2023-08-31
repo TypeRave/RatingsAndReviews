@@ -24,6 +24,7 @@ const reviewSchema = new mongoose.Schema({
   reviewer_name: String,
   helpfulness: Number,
   photos: [photoSchema],
+  has_photos: Boolean,
   fit: Number, //switched to descriptive names instead of characteristic IDs moving forward
   length: Number, //null ok, characteristics are not required, not all products have every characteristic
   comfort: Number,
@@ -33,16 +34,29 @@ const reviewSchema = new mongoose.Schema({
   reported: Boolean,
 });
 
-const Product = new mongoose.Schema({
+const characteristicSchema = new mongoose.Schema({
   id: Number,
-  characteristics: [String],
+  name: String,
+  product_id: Number,
+  review_id: Number,
+  value: Number,
 });
 
 const Review = mongoose.model('Review', reviewSchema);
-const Product = mongoose.model('Product', productSchema);
+const Characteristic = mongoose.model('Characteristic', characteristicSchema);
+
 
 /* Queries I'll need:
 Reviews: aggregate -> sum of all reviews by product id, grouped by star rating. return 5 totals
 Recommended: aggregate -> sum of all reviews by product id, grouped by reccommended true/false. return 2 totals
 Characteristics: aggregate -> avg of all reviews by product id, filter by characteristics in Product model, return totals for all characteristics
 */
+
+// possible optimization later
+// const Product = new mongoose.Schema({
+//   id: Number,
+//   characteristics: [String],
+// });
+
+// const Review = mongoose.model('Review', reviewSchema);
+// const Product = mongoose.model('Product', productSchema);
