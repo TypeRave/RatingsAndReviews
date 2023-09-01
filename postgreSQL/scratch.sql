@@ -1,53 +1,64 @@
-CREATE SCHEMA ratings_reviews;
 
+-- postgres commands: https://www.postgresqltutorial.com/postgresql-cheat-sheet/
+--reviews headers: id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
 CREATE TABLE reviews (
-  id serial PRIMARY KEY,
+  id bigserial PRIMARY KEY,
   product_id integer NOT NULL,
   rating integer NOT NULL,
-  date timestamp NOT NULL DEFAULT now(), --I might want to index this so I can return newest?
-  --^check if quotes are needed for existing keywords
-  summary varchar(60) NOT NULL,
-  recommended boolean,
-  response varchar(1000) NOT NULL,
+  created_at bigint NOT NULL,
+  summary varchar(100) NOT NULL,
   body varchar(1000) NOT NULL,
+  recommend boolean,
+  reported boolean DEFAULT false,
   reviewer_name varchar(60) NOT NULL,
   reviewer_email varchar(60) NOT NULL,
-  helpfulness integer DEFAULT 0,
-  photos boolean DEFAULT FALSE,
-  --^added boolean, if photos submitted, switch to true. this might save on checking the review_photos table if no photos exist, but it may also add extra bulk where none is needed. Will experiment!
-  fit integer NULL,
-  length integer NULL,
-  comfort integer NULL,
-  quality integer NULL,
-  size integer NULL,
-  width integer NULL,
-  reported boolean DEFAULT FALSE,
+  response varchar(1000) NOT NULL,
+  helpfulness integer DEFAULT 0
 );
 
 CREATE TABLE review_photos (
-  id serial PRIMARY KEY,
+  id bigserial PRIMARY KEY,
   review_id integer NOT NULL,
-  url varchar(255),
+  photo_url varchar(255),
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
 
-
+-- updated "name" to "characteristic"
 CREATE TABLE characteristics (
-  id serial PRIMARY KEY,
+  id bigserial PRIMARY KEY,
   product_id integer NOT NULL,
-  characteristic varchar(7) NOT NULL,
-  -- updated "name" to "characteristic"
+  characteristic varchar(7) NOT NULL
 );
 
 CREATE TABLE characteristics_reviews (
-  id serial PRIMARY KEY,
-  review_id integer NOT NULL,
+  id bigserial PRIMARY KEY,
   characteristic_id integer NOT NULL,
-  value integer NOT NULL,
+  review_id integer NOT NULL,
+  characteristic_value integer NOT NULL,
   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id),
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
 
+--TEST UPLOAD:
+COPY reviews
+FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_revs.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY review_photos
+FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_revs_photos.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY characteristics
+FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_chars.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY characteristics_reviews
+FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_chars_revs.csv'
+DELIMITER ','
+CSV HEADER;
 
 
 ----LATER OPTIMIZATION----
@@ -73,6 +84,34 @@ CREATE TABLE characteristics_reviews (
 --   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id),
 --   FOREIGN KEY (review_id) REFERENCES reviews (id)
 -- );
+
+-- my original reviews table
+--I might want to index date so I can return newest?
+  --check if quotes are needed for existing keywords date and length
+    --added boolean to photos, if photos submitted, switch to true. this might save on checking the review_photos table if no photos exist, but it may also add extra bulk where none is needed. Will experiment!
+
+--CREATE TABLE reviews (
+--   id serial PRIMARY KEY,
+--   product_id integer NOT NULL,
+--   rating integer NOT NULL,
+--   date timestamp NOT NULL DEFAULT now(),
+--   summary varchar(60) NOT NULL,
+--   recommended boolean,
+--   response varchar(1000) NOT NULL,
+--   body varchar(1000) NOT NULL,
+--   reviewer_name varchar(60) NOT NULL,
+--   reviewer_email varchar(60) NOT NULL,
+--   helpfulness integer DEFAULT 0,
+--   photos boolean DEFAULT FALSE,
+--   fit integer NULL,
+--   length integer NULL,
+--   comfort integer NULL,
+--   quality integer NULL,
+--   size integer NULL,
+--   width integer NULL,
+--   reported boolean DEFAULT FALSE
+-- );
+
 
 ------------------------------------
 ------------QUERIES-----------------
