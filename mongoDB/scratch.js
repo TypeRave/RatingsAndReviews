@@ -4,12 +4,12 @@ main().catch(err => console.log(err));
 
 async function main() {
   await mongoose.connect('mongodb://127.0.0.1:27017/ratings_reviews');
-}
+};
 
 //subdocument
 const photoSchema = new mongoose.Schema({
   id: Number;
-  url: String;
+  url: String,
 });
 //main document
 const reviewSchema = new mongoose.Schema({
@@ -24,8 +24,9 @@ const reviewSchema = new mongoose.Schema({
   reviewer_name: String,
   helpfulness: Number,
   photos: [photoSchema],
-  fit: Number, //use descriptive names instead of characteristic IDs moving forward
-  length: Number,
+  has_photos: Boolean,
+  fit: Number, //switched to descriptive names instead of characteristic IDs moving forward
+  length: Number, //null ok, characteristics are not required, not all products have every characteristic
   comfort: Number,
   quality: Number,
   size: Number,
@@ -33,35 +34,29 @@ const reviewSchema = new mongoose.Schema({
   reported: Boolean,
 });
 
-const Review = mongoose.model('Review', reviewSchema)
-
-
-//make metadata collection a "view"
-const metadataSchema = new mongoose.Schema({
+const characteristicSchema = new mongoose.Schema({
+  id: Number,
+  name: String,
   product_id: Number,
-  rating_1: Number,
-  rating_2: Number,
-  rating_3: Number,
-  rating_4: Number,
-  rating_5: Number,
-  recommended_true: Number,
-  recommended_false: Number,
-  fit_avg: Number,
-  length_avg: Number,
-  width_avg: Number,
-  comfort_avg: Number,
-  quality_avg: Number,
-  size_avg: Number,
-}, { autoCreate: false, autoIndex: false}); //disable for views because we want to create on demand
+  review_id: Number,
+  value: Number,
+});
 
-const Metadata = mongoose.model('Metadata', metadataSchema);
-// await Metadata.createCollection(
-//   viewOn: 'reviews',
-//   pipeline: [
-//     {
-//       $set: {
-//         rating_1: { }... //create agreggation logic
-//       }
-//     }
-//   ]
-// );
+const Review = mongoose.model('Review', reviewSchema);
+const Characteristic = mongoose.model('Characteristic', characteristicSchema);
+
+
+/* Queries I'll need:
+Reviews: aggregate -> sum of all reviews by product id, grouped by star rating. return 5 totals
+Recommended: aggregate -> sum of all reviews by product id, grouped by reccommended true/false. return 2 totals
+Characteristics: aggregate -> avg of all reviews by product id, filter by characteristics in Product model, return totals for all characteristics
+*/
+
+// possible optimization later
+// const Product = new mongoose.Schema({
+//   id: Number,
+//   characteristics: [String],
+// });
+
+// const Review = mongoose.model('Review', reviewSchema);
+// const Product = mongoose.model('Product', productSchema);
