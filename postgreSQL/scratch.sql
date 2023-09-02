@@ -1,11 +1,20 @@
 
 -- postgres commands: https://www.postgresqltutorial.com/postgresql-cheat-sheet/
---reviews headers: id,product_id,rating,date,summary,body,recommend,reported,reviewer_name,reviewer_email,response,helpfulness
-CREATE TABLE reviews (
+
+\c postgres
+
+DROP DATABASE test_ratingsreviews;
+
+
+CREATE DATABASE test_ratingsreviews;
+
+\c test_ratingsreviews
+
+CREATE TABLE temp_reviews (
   id bigserial PRIMARY KEY,
   product_id integer NOT NULL,
   rating integer NOT NULL,
-  created_at bigint NOT NULL,
+  unix_date bigint NOT NULL,
   summary varchar(100) NOT NULL,
   body varchar(1000) NOT NULL,
   recommend boolean,
@@ -15,6 +24,22 @@ CREATE TABLE reviews (
   response varchar(1000) NOT NULL,
   helpfulness integer DEFAULT 0
 );
+
+CREATE TABLE reviews (
+  id bigserial PRIMARY KEY,
+  product_id integer NOT NULL,
+  rating integer NOT NULL,
+  created_at varchar(28) NOT NULL,
+  summary varchar(100) NOT NULL,
+  body varchar(1000) NOT NULL,
+  recommend boolean,
+  reported boolean DEFAULT false,
+  reviewer_name varchar(60) NOT NULL,
+  reviewer_email varchar(60) NOT NULL,
+  response varchar(1000) NOT NULL,
+  helpfulness integer DEFAULT 0
+);
+
 
 CREATE TABLE review_photos (
   id bigserial PRIMARY KEY,
@@ -40,25 +65,48 @@ CREATE TABLE characteristics_reviews (
 );
 
 --TEST UPLOAD:
-COPY reviews
-FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_revs.csv'
+COPY temp_reviews
+FROM '/Users/Lauren/Hack_Reactor/SDC/RatingsAndReviews/raw_data/test_revs.csv'
 DELIMITER ','
 CSV HEADER;
 
+--add new column converting date
+ALTER TABLE temp_reviews
+ADD COLUMN iso_date text;
+UPDATE temp_reviews
+SET iso_date = TO_CHAR(TO_TIMESTAMP(unix_date/1000)::timestamp with time zone AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"');
+--SET iso_date = TO_CHAR(DATE(unix_date), 'YYYY-MM-DD');
+
+--copy table over with correct timestamp dates
+INSERT INTO reviews (id, product_id, rating, created_at, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness)
+SELECT id, product_id, rating, iso_date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness
+FROM temp_reviews;
+
 COPY review_photos
-FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_revs_photos.csv'
+FROM '/Users/Lauren/Hack_Reactor/SDC/RatingsAndReviews/raw_data/test_revs_photos.csv'
 DELIMITER ','
 CSV HEADER;
 
 COPY characteristics
-FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_chars.csv'
+FROM '/Users/Lauren/Hack_Reactor/SDC/RatingsAndReviews/raw_data/test_chars.csv'
 DELIMITER ','
 CSV HEADER;
 
 COPY characteristics_reviews
-FROM '/Users/Lauren/Hack Reactor/SDC/RatingsAndReviews/raw_data/test_chars_revs.csv'
+FROM '/Users/Lauren/Hack_Reactor/SDC/RatingsAndReviews/raw_data/test_chars_revs.csv'
 DELIMITER ','
 CSV HEADER;
+
+
+
+
+
+
+
+
+
+
+
 
 
 ----LATER OPTIMIZATION----
