@@ -36,7 +36,6 @@ CREATE TABLE reviews (
   helpfulness integer DEFAULT 0
 );
 
-
 CREATE TABLE review_photos (
   id bigserial PRIMARY KEY,
   review_id integer NOT NULL,

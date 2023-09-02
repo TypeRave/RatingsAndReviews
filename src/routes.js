@@ -3,6 +3,6 @@ const controller = require('./controller');
 
 const router = Router();
 
-router.get('/', () => controller.getReviews);
+router.get('/', controller.getReviews);
 
 module.exports = router;
