@@ -76,6 +76,9 @@ INSERT INTO reviews (id, product_id, rating, created_at, summary, body, recommen
 SELECT id, product_id, rating, iso_date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness
 FROM temp_reviews;
 
+--create product id index
+-- CREATE UNIQUE INDEX prod_index ON reviews;
+
 COPY review_photos
 FROM '/Users/Lauren/Hack_Reactor/SDC/RatingsAndReviews/raw_data/reviews_photos.csv'
 DELIMITER ','
