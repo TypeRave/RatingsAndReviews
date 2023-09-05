@@ -2,3 +2,4 @@ node_modules/
 raw_data/
 .DS_Store
 .env
+postgresQL/scratch.sql

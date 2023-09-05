@@ -41,19 +41,16 @@ const getMetadata = async (req, res) => {
     characteristics: {},
   };
 
-  let ratingsQuery = `SELECT * FROM total_ratings WHERE product_id=${id}`;
-  let recommendedQuery = `SELECT * FROM total_recommended WHERE product_id=${id}`;
-  let characteristicsQuery = `SELECT * FROM avg_characteristics WHERE product_id=${id}`;
+  let ratingsQuery = `SELECT "1", "2", "3", "4", "5" FROM total_ratings WHERE product_id=${id};`;
+  let recommendedQuery = `SELECT "true", "false" FROM total_recommended WHERE product_id=${id};`;
+  let characteristicsQuery = `SELECT * FROM avg_characteristics WHERE product_id=${id};`;
 
   const ratingsResults = await pool.query(ratingsQuery);
   returnObj.ratings = ratingsResults.rows[0];
-  delete returnObj.ratings.product_id;
 
   const recommendResults = await pool.query(recommendedQuery);
   returnObj.recommended = recommendResults.rows[0];
-  delete returnObj.recommended.product_id;
 
-  ///ADD BACK IN KEYS
   const characteristicResults = await pool.query(characteristicsQuery);
   characteristicResults.rows.forEach((char) => {
     returnObj.characteristics[char.characteristic] = {
@@ -65,28 +62,45 @@ const getMetadata = async (req, res) => {
   res.status(200).json(returnObj);
 };
 
-const postReview = (req, res) => {
-  let post = req.body;
-  let date = new Date().toISOString();
+const postReview = async (req, res) => {
+  const post = req.body;
+  const date = new Date().toISOString();
 
-  let insertPost = `INSERT INTO reviews (product_id, rating, created_at, summary, body, recommend, reviewer_name, reviewer_email)
-  VALUES(${post.product_id}, ${post.rating}, ${date}, ${post.summary}, ${post.body}, ${post.recommend}, ${post.name}, ${post.email}) RETURNING id;`
+  const values = [
+    post.product_id,
+    post.rating,
+    date,
+    post.summary,
+    post.body,
+    post.recommend,
+    post.name,
+    post.email
+  ];
 
-  let reviewID = 0;
-  pool.query(insertPost)
-  .then((result) => {
-    reviewID = result;
-    post.photos.forEach((photo) => {
-      pool.query(`INSERT INTO reviews_photos (review_id, photo_url) VALUES (${reviewID}, ${photo})`)
-    })
-  })
-  .then(() => {
-    for (let key in post.characteristics) {
-      pool.query(`INSERT INTO characteristics_reviews (characteristic_id, review_id, characteristic_value) VALUES (${key}, ${reviewID}, ${post.characteristics[key]})`)
-    }
-  })
-  .then(() => res.sendStatus(201))
-  .catch(() => res.send('Error posting review'));
+  const  insertPost = `INSERT INTO reviews (product_id, rating, created_at, summary, body, recommend, reviewer_name, reviewer_email)
+  VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`
+  const reviewPostResults = await pool.query(insertPost, values);
+  const reviewID = reviewPostResults.rows[0].id;
+
+  for (let i = 0; i < post.photos.length; i++) {
+    const photoVals = [
+      reviewID,
+      post.photos[i]
+    ];
+    const insertPhotos = `INSERT INTO review_photos (review_id, photo_url) VALUES ($1, $2);`;
+    await pool.query(insertPhotos, photoVals);
+  }
+
+  for (let key in post.characteristics) {
+    const chars = [
+      key,
+      reviewID,
+      post.characteristics[key]
+    ];
+    const insertChars = `INSERT INTO characteristics_reviews (characteristic_id, review_id, characteristic_value) VALUES ($1, $2, $3);`;
+    await pool.query(insertChars, chars);
+  }
+  res.sendStatus(201);
 };
 
 const markHelpful = () => {};

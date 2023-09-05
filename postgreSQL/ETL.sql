@@ -17,7 +17,7 @@ CREATE TABLE temp_reviews (
   reported boolean DEFAULT false,
   reviewer_name varchar(60) NOT NULL,
   reviewer_email varchar(60) NOT NULL,
-  response varchar(1000) NOT NULL,
+  response varchar(1000),
   helpfulness integer DEFAULT 0
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE reviews (
   reported boolean DEFAULT false,
   reviewer_name varchar(60) NOT NULL,
   reviewer_email varchar(60) NOT NULL,
-  response varchar(1000) NOT NULL,
+  response varchar(1000),
   helpfulness integer DEFAULT 0
 );
 CREATE INDEX ON reviews (product_id);
@@ -146,4 +146,9 @@ CREATE OR REPLACE VIEW avg_characteristics AS
   JOIN
     characteristics c ON c.id = cr.characteristic_id
   GROUP BY product_id, characteristic_id, characteristic;
+
+SELECT pg_catalog.setval(pg_get_serial_sequence('reviews', 'id'), (SELECT MAX(id) FROM reviews) + 1);
+SELECT pg_catalog.setval(pg_get_serial_sequence('review_photos', 'id'), (SELECT MAX(id) FROM review_photos) + 1);
+SELECT pg_catalog.setval(pg_get_serial_sequence('characteristics', 'id'), (SELECT MAX(id) FROM characteristics) + 1);
+SELECT pg_catalog.setval(pg_get_serial_sequence('characteristics_reviews', 'id'), (SELECT MAX(id) FROM characteristics_reviews) + 1);
 
