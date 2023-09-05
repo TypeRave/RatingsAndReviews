@@ -44,6 +44,7 @@ CREATE TABLE review_photos (
   photo_url varchar(255),
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
+CREATE INDEX on review_photos (review_id);
 
 -- updated "name" to "characteristic"
 CREATE TABLE characteristics (
@@ -51,6 +52,7 @@ CREATE TABLE characteristics (
   product_id integer NOT NULL,
   characteristic varchar(7) NOT NULL
 );
+CREATE INDEX ON characteristics (product_id);
 
 CREATE TABLE characteristics_reviews (
   id bigserial PRIMARY KEY,
@@ -60,6 +62,7 @@ CREATE TABLE characteristics_reviews (
   FOREIGN KEY (characteristic_id) REFERENCES characteristics (id),
   FOREIGN KEY (review_id) REFERENCES reviews (id)
 );
+CREATE INDEX on characteristics_reviews (characteristic_id);
 
 --temp table to convert unix date to iso8691
 COPY temp_reviews
