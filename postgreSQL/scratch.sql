@@ -102,7 +102,12 @@ CSV HEADER;
 
 
 
+--QUERIES
 
+EXPLAIN ANALYZE SELECT * FROM reviews WHERE product_id=900000;
+EXPLAIN ANALYZE SELECT * FROM total_ratings WHERE product_id=900000;
+EXPLAIN ANALYZE SELECT * FROM total_recommended WHERE product_id=900000;
+EXPLAIN ANALYZE SELECT * FROM avg_characteristics WHERE product_id=900000;
 
 
 
