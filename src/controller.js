@@ -110,14 +110,14 @@ const verify = (req, res) => {
           res.send(body);
   };
 
-const markHelpful = () => {};
-const report = () => {};
+// const markHelpful = () => {};
+// const report = () => {};
 
 module.exports = {
   getReviews,
   getMetadata,
   postReview,
-  markHelpful,
-  report,
+  // markHelpful,
+  // report,
   verify
 };
