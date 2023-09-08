@@ -1,4 +1,6 @@
 const pool = require('../postgreSQL/db');
+const fs = require('fs');
+require('dotenv').config();
 
 const getReviews = async (req, res) => {
   let id = req.query.product_id;
@@ -103,6 +105,11 @@ const postReview = async (req, res) => {
   res.sendStatus(201);
 };
 
+const verify = (req, res) => {
+  const body = fs.readFileSync(process.env.LOADERFILE);
+          res.send(body);
+  };
+
 const markHelpful = () => {};
 const report = () => {};
 
@@ -112,4 +119,5 @@ module.exports = {
   postReview,
   markHelpful,
   report,
+  verify
 };
