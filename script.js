@@ -16,8 +16,8 @@ export const options = {
 };
 
 export default function () {
-  const max = 900000;
-  const min = 800000;
+  const max = 1000000;
+  const min = 900000;
   const product_id = Math.floor(Math.random() * (max - min) + min);
 
   //const localURL = `http://localhost:3000/reviews/?product_id=${product_id}`;
