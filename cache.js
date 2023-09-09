@@ -1,4 +1,6 @@
 const { LRUCache } = require('lru-cache');
+const pako = require('pako');
+
 const reviewCache = new LRUCache({
   max: 50000,
   //10min cache
@@ -10,19 +12,23 @@ const metaCache = new LRUCache({
 });
 
 function addToReviewCache(key, data) {
-  reviewCache.set(key, data);
+  const compressed = pako.deflate(JSON.stringify(data));
+  reviewCache.set(key, compressed);
 };
 
 function getFromReviewCache(key) {
-  return reviewCache.get(key);
+  const compressed = reviewCache.get(key);
+  return JSON.parse(pako.inflate(compressed, { to: 'string' }));
 };
 
 function addToMetaCache(key, data) {
-  metaCache.set(key, data);
+  const compressed = pako.deflate(JSON.stringify(data));
+  metaCache.set(key, compressed);
 };
 
 function getFromMetaCache(key) {
-  return metaCache.get(key);
+  const compressed = metaCache.get(key);
+  return JSON.parse(pako.inflate(compressed, { to: 'string' }));
 };
 
 module.exports = {
