@@ -1,11 +1,11 @@
 const { LRUCache } = require('lru-cache');
 const reviewCache = new LRUCache({
-  max: 10000,
+  max: 100000,
   //10min cache
   ttl: 600000
 });
 const metaCache = new LRUCache({
-  max: 10000,
+  max: 100000,
   ttl: 600000
 });
 
