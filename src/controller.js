@@ -7,7 +7,7 @@ const getReviews = async (req, res) => {
   const request = JSON.stringify(req.query);
   const cachedData = getFromReviewCache(request);
   if (cachedData) {
-    res.status(200).json(cachedData);
+    res.status(200).json(JSON.parse(cachedData));
   } else {
     let id = req.query.product_id;
     let count = req.query?.count || 5;
@@ -37,39 +37,46 @@ const getReviews = async (req, res) => {
         photos,
       })
     }
-    addToReviewCache(request, returnObj);
+    addToReviewCache(request, JSON.stringify(returnObj));
     res.status(200).json(returnObj);
   }
 };
 
 const getMetadata = async (req, res) => {
-  let id = req.query.product_id;
-  let returnObj = {
-    product_id: id,
-    ratings: {},
-    recommended: {},
-    characteristics: {},
-  };
+  const request = JSON.stringify(req.query);
+  const cachedData = getFromMetaCache(request);
 
-  let ratingsQuery = `SELECT "1", "2", "3", "4", "5" FROM total_ratings WHERE product_id=${id};`;
-  let recommendedQuery = `SELECT "true", "false" FROM total_recommended WHERE product_id=${id};`;
-  let characteristicsQuery = `SELECT * FROM avg_characteristics WHERE product_id=${id};`;
+  if (cachedData) {
+    res.status(200).json(JSON.parse(cachedData));
+  } else {
+    let id = req.query.product_id;
+    let returnObj = {
+      product_id: id,
+      ratings: {},
+      recommended: {},
+      characteristics: {},
+    };
 
-  const ratingsResults = await pool.query(ratingsQuery);
-  returnObj.ratings = ratingsResults.rows[0];
+    let ratingsQuery = `SELECT "1", "2", "3", "4", "5" FROM total_ratings WHERE product_id=${id};`;
+    let recommendedQuery = `SELECT "true", "false" FROM total_recommended WHERE product_id=${id};`;
+    let characteristicsQuery = `SELECT * FROM avg_characteristics WHERE product_id=${id};`;
 
-  const recommendResults = await pool.query(recommendedQuery);
-  returnObj.recommended = recommendResults.rows[0];
+    const ratingsResults = await pool.query(ratingsQuery);
+    returnObj.ratings = ratingsResults.rows[0];
 
-  const characteristicResults = await pool.query(characteristicsQuery);
-  characteristicResults.rows.forEach((char) => {
-    returnObj.characteristics[char.characteristic] = {
-      id: char.id,
-      value: char.value
-    }
-  })
+    const recommendResults = await pool.query(recommendedQuery);
+    returnObj.recommended = recommendResults.rows[0];
 
-  res.status(200).json(returnObj);
+    const characteristicResults = await pool.query(characteristicsQuery);
+    characteristicResults.rows.forEach((char) => {
+      returnObj.characteristics[char.characteristic] = {
+        id: char.id,
+        value: char.value
+      }
+    })
+    addToMetaCache(request, JSON.stringify(returnObj));
+    res.status(200).json(returnObj);
+  }
 };
 
 const postReview = async (req, res) => {
