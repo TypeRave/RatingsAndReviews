@@ -1,37 +1,45 @@
 const pool = require('../postgreSQL/db');
 const fs = require('fs');
 require('dotenv').config();
+const { addToReviewCache, getFromReviewCache, addToMetaCache, getFromMetaCache } = require('../cache.js');
 
 const getReviews = async (req, res) => {
-  let id = req.query.product_id;
-  let count = req.query?.count || 5;
-  let page = req.query?.page || 1;
-  let sort = req.query?.sort || 'relevant';
+  const request = JSON.stringify(req.query);
+  const cachedData = getFromReviewCache(request);
+  if (cachedData) {
+    res.status(200).json(cachedData);
+  } else {
+    let id = req.query.product_id;
+    let count = req.query?.count || 5;
+    let page = req.query?.page || 1;
+    let sort = req.query?.sort || 'relevant';
 
-  if (sort === 'helpful') { sort = 'helpfulness DESC'; }
-  if (sort === 'newest') { sort = 'created_at DESC'; }
-  if (sort === 'relevant') { sort = 'helpfulness DESC, created_at DESC'; }
-  let offset = count * (page - 1);
+    if (sort === 'helpful') { sort = 'helpfulness DESC'; }
+    if (sort === 'newest') { sort = 'created_at DESC'; }
+    if (sort === 'relevant') { sort = 'helpfulness DESC, created_at DESC'; }
+    let offset = count * (page - 1);
 
-  let query = `SELECT * FROM reviews WHERE product_id=(${id}) AND reported=false ORDER BY ${sort} LIMIT ${count} OFFSET ${offset};`;
-  let returnObj = {
-    product: id,
-    page: parseInt(page),
-    count: parseInt(count),
-    results: [],
-  };
+    let query = `SELECT * FROM reviews WHERE product_id=(${id}) AND reported=false ORDER BY ${sort} LIMIT ${count} OFFSET ${offset};`;
+    let returnObj = {
+      product: id,
+      page: parseInt(page),
+      count: parseInt(count),
+      results: [],
+    };
 
-  const reviewResults = await pool.query(query);
-  for (const review of reviewResults.rows) {
-    let photoQuery = `SELECT * FROM review_photos WHERE review_id=${review.id};`;
-    const photoResults = await pool.query(photoQuery);
-    const photos = photoResults.rows.map(photo => photo.photo_url);
-    returnObj.results.push({
-      ...review,
-      photos,
-    })
+    const reviewResults = await pool.query(query);
+    for (const review of reviewResults.rows) {
+      let photoQuery = `SELECT * FROM review_photos WHERE review_id=${review.id};`;
+      const photoResults = await pool.query(photoQuery);
+      const photos = photoResults.rows.map(photo => photo.photo_url);
+      returnObj.results.push({
+        ...review,
+        photos,
+      })
+    }
+    addToReviewCache(request, returnObj);
+    res.status(200).json(returnObj);
   }
-  res.status(200).json(returnObj);
 };
 
 const getMetadata = async (req, res) => {

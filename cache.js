@@ -1,6 +1,13 @@
-const LRU = require('lru-cache');
-const reviewCache = new LRU({ max: 1000 });
-const metaCache = new LRU({ max: 1000 });
+const { LRUCache } = require('lru-cache');
+const reviewCache = new LRUCache({
+  max: 1000,
+  //10min cache
+  ttl: 600000
+});
+const metaCache = new LRUCache({
+  max: 1000,
+  ttl: 600000
+});
 
 function addToReviewCache(key, data) {
   reviewCache.set(key, data);
