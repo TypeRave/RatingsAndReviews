@@ -5,5 +5,4 @@ const loadTest = Router();
 
 loadTest.get('/', controller.verify);
 
-
 module.exports = loadTest;
