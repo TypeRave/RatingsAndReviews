@@ -11,19 +11,21 @@ const metaCache = new LRUCache({
 });
 
 function addToReviewCache(key, data) {
-  reviewCache.set(key, data);
+  const stringified = JSON.stringify(data);
+  reviewCache.set(key, stringified);
 };
 
 function getFromReviewCache(key) {
-  return reviewCache.get(key);
+  return JSON.parse(reviewCache.get(key));
 };
 
 function addToMetaCache(key, data) {
-  metaCache.set(key, data);
+  const stringified = JSON.stringify(data);
+  metaCache.set(key, stringified);
 };
 
 function getFromMetaCache(key) {
-  return metaCache.get(key);
+  return JSON.parse(metaCache.get(key));
 };
 
 module.exports = {
