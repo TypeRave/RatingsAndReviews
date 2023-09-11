@@ -5,10 +5,10 @@ const { addToReviewCache, getFromReviewCache, addToMetaCache, getFromMetaCache }
 
 const getReviews = async (req, res) => {
   const request = JSON.stringify(req.query);
-  const cachedData = getFromReviewCache(request);
-  if (cachedData) {
-    res.status(200).json(JSON.parse(cachedData));
-  } else {
+  //const cachedData = getFromReviewCache(request);
+  // if (cachedData) {
+  //   res.status(200).json(JSON.parse(cachedData));
+  // } else {
     let id = req.query.product_id;
     let count = req.query?.count || 5;
     let page = req.query?.page || 1;
@@ -37,18 +37,18 @@ const getReviews = async (req, res) => {
         photos,
       })
     }
-    addToReviewCache(request, JSON.stringify(returnObj));
+    //addToReviewCache(request, JSON.stringify(returnObj));
     res.status(200).json(returnObj);
-  }
+  //}
 };
 
 const getMetadata = async (req, res) => {
   const request = JSON.stringify(req.query);
-  const cachedData = getFromMetaCache(request);
+  // const cachedData = getFromMetaCache(request);
 
-  if (cachedData) {
-    res.status(200).json(JSON.parse(cachedData));
-  } else {
+  // if (cachedData) {
+  //   res.status(200).json(JSON.parse(cachedData));
+  // } else {
     let id = req.query.product_id;
     let returnObj = {
       product_id: id,
@@ -74,9 +74,9 @@ const getMetadata = async (req, res) => {
         value: char.value
       }
     })
-    addToMetaCache(request, JSON.stringify(returnObj));
+    //addToMetaCache(request, JSON.stringify(returnObj));
     res.status(200).json(returnObj);
-  }
+  //}
 };
 
 const postReview = async (req, res) => {
